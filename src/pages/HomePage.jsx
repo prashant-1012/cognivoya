@@ -3,6 +3,9 @@ import { motion } from 'framer-motion'
 import { Sparkles, ArrowRight, Zap, Users, Star, TrendingUp } from 'lucide-react'
 import PageWrapper from '@/components/layout/PageWrapper'
 import Button from '@/components/ui/Button'
+import ToolCard from '@/features/tools/ToolCard'
+import ToolSkeleton from '@/features/tools/ToolSkeleton'
+import { useGetToolsQuery } from '@/services/toolsApi'
 import { CATEGORIES } from '@/utils/constants'
 
 const stats = [
@@ -21,7 +24,11 @@ const fadeUp = {
   }),
 }
 
-const HomePage = () => (
+const HomePage = () => {
+  const { data, isLoading } = useGetToolsQuery({ sort: 'popular', page: 1 })
+  const featuredTools = data?.tools?.slice(0, 8) ?? []
+
+  return (
   <div>
     {/* Hero */}
     <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
@@ -113,6 +120,37 @@ const HomePage = () => (
       </PageWrapper>
     </section>
 
+    {/* Featured tools section */}
+    <section className="py-16 border-t border-border">
+      <PageWrapper>
+        <motion.div
+          variants={fadeUp}
+          custom={0}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-80px' }}
+          className="flex items-end justify-between mb-8"
+        >
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">🔥 Most Popular</h2>
+            <p className="text-sm text-muted mt-1">The tools everyone is using right now</p>
+          </div>
+          <Link
+            to="/discover"
+            className="hidden sm:flex items-center gap-1.5 text-sm text-brand-primary hover:underline font-medium"
+          >
+            View all <ArrowRight size={14} />
+          </Link>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {isLoading
+            ? <ToolSkeleton count={8} viewMode="grid" />
+            : featuredTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)}
+        </div>
+      </PageWrapper>
+    </section>
+
     {/* Categories section */}
     <section className="py-16 border-t border-border">
       <PageWrapper>
@@ -194,7 +232,8 @@ const HomePage = () => (
       </PageWrapper>
     </section>
   </div>
-)
+  )
+}
 
 const categoryEmoji = {
   text: '✍️',

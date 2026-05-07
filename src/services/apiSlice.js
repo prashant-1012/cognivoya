@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { API_BASE_URL } from '@/utils/constants'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { mockBaseQuery } from './mockBaseQuery'
 
+// Swap mockBaseQuery → fetchBaseQuery(baseUrl) when a real API is ready
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
+  baseQuery: mockBaseQuery,
   tagTypes: ['Tools', 'Categories'],
   keepUnusedDataFor: 60,
   endpoints: () => ({}),
