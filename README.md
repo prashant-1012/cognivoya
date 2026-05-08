@@ -164,7 +164,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 ## Author
 
 **Prashant Kumar**
-[developer99ai@gmail.com](mailto:developer99ai@gmail.com)
+[prashant2009kr@gmail.com](mailto:prashant2009kr@gmail.com)
 
 ---
 
