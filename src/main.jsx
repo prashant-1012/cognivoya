@@ -8,6 +8,7 @@ import { Toaster } from 'react-hot-toast'
 import { store } from '@/app/store'
 import AppRouter from '@/router/AppRouter'
 import ThemeProvider from '@/features/theme/ThemeProvider'
+import SearchModal from '@/features/search/SearchModal'
 import '@/styles/index.css'
 
 createRoot(document.getElementById('root')).render(
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')).render(
         <BrowserRouter>
           <ThemeProvider>
             <AppRouter />
+            <SearchModal />
             <Toaster
               position="bottom-right"
               toastOptions={{
