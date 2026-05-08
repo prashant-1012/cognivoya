@@ -89,7 +89,9 @@ const slugToLabel = (slug) =>
     marketing: 'Marketing',
   }[slug] ?? slug)
 
-export const mockBaseQuery = async ({ url, params }) => {
+export const mockBaseQuery = async (arg) => {
+  const url = typeof arg === 'string' ? arg : arg.url
+  const params = typeof arg === 'string' ? {} : (arg.params ?? {})
   try {
     // Match /tools/:id pattern
     const idMatch = url.match(/^\/tools\/(.+)$/)
