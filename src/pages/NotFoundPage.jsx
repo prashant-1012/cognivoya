@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 
 const NotFoundPage = () => (
+  <>
+  <Helmet><title>404 — Page Not Found — Cognivoya</title></Helmet>
   <div className="min-h-screen flex flex-col items-center justify-center gap-6 text-center px-4">
     <p className="text-8xl font-black text-brand-primary">404</p>
     <h1 className="text-2xl font-bold text-foreground">Page not found</h1>
@@ -14,6 +17,7 @@ const NotFoundPage = () => (
       Go home
     </Link>
   </div>
+  </>
 )
 
 export default NotFoundPage

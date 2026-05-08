@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 import { Sparkles, ArrowRight, Zap, Users, Star, TrendingUp } from 'lucide-react'
 import PageWrapper from '@/components/layout/PageWrapper'
 import Button from '@/components/ui/Button'
@@ -29,6 +30,14 @@ const HomePage = () => {
   const featuredTools = data?.tools?.slice(0, 8) ?? []
 
   return (
+  <>
+  <Helmet>
+    <title>Cognivoya — Discover the Best AI Tools</title>
+    <meta name="description" content="Browse 2,400+ curated AI tools for writing, image, video, code, and more. Find the perfect AI tool for any job." />
+    <meta property="og:title" content="Cognivoya — Discover the Best AI Tools" />
+    <meta property="og:description" content="Browse 2,400+ curated AI tools across every category. Discover what's trending." />
+    <meta property="og:type" content="website" />
+  </Helmet>
   <div>
     {/* Hero */}
     <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
@@ -232,6 +241,7 @@ const HomePage = () => {
       </PageWrapper>
     </section>
   </div>
+  </>
   )
 }
 

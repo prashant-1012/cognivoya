@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 import PageWrapper from '@/components/layout/PageWrapper'
 import SearchBar from '@/features/search/SearchBar'
 import ToolList from '@/features/tools/ToolList'
@@ -49,6 +50,11 @@ const SearchResultsPage = () => {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>{query ? `"${query}" — Search — Cognivoya` : 'Search AI Tools — Cognivoya'}</title>
+      <meta name="description" content={query ? `Search results for "${query}" on Cognivoya` : 'Search thousands of AI tools by name, category, or use case.'} />
+    </Helmet>
     <PageWrapper className="py-10">
       {/* Header */}
       <div className="mb-6">
@@ -102,6 +108,7 @@ const SearchResultsPage = () => {
         </>
       )}
     </PageWrapper>
+    </>
   )
 }
 

@@ -1,4 +1,5 @@
 import { useDispatch } from 'react-redux'
+import { Helmet } from 'react-helmet-async'
 import PageWrapper from '@/components/layout/PageWrapper'
 import CategoryFilter from '@/features/categories/CategoryFilter'
 import SortControls from '@/features/tools/SortControls'
@@ -40,6 +41,11 @@ const DiscoverPage = () => {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>Discover AI Tools — Cognivoya</title>
+      <meta name="description" content="Browse and filter 2,400+ AI tools by category, sort by popularity, and find exactly what you need." />
+    </Helmet>
     <PageWrapper className="py-10">
       {/* Header */}
       <div className="mb-6">
@@ -85,6 +91,7 @@ const DiscoverPage = () => {
         />
       )}
     </PageWrapper>
+    </>
   )
 }
 

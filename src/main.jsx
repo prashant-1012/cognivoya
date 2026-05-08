@@ -9,6 +9,7 @@ import { store } from '@/app/store'
 import AppRouter from '@/router/AppRouter'
 import ThemeProvider from '@/features/theme/ThemeProvider'
 import SearchModal from '@/features/search/SearchModal'
+import InstallBanner from '@/components/ui/InstallBanner'
 import '@/styles/index.css'
 
 createRoot(document.getElementById('root')).render(
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
           <ThemeProvider>
             <AppRouter />
             <SearchModal />
+            <InstallBanner />
             <Toaster
               position="bottom-right"
               toastOptions={{

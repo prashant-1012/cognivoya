@@ -60,6 +60,10 @@ const ToolDetailPage = () => {
       <Helmet>
         <title>{tool.name} — Cognivoya</title>
         <meta name="description" content={tool.tagline} />
+        <meta property="og:title" content={`${tool.name} — Cognivoya`} />
+        <meta property="og:description" content={tool.tagline} />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content={`https://www.google.com/s2/favicons?domain=${tool.logo}&sz=128`} />
       </Helmet>
 
       <PageWrapper className="py-10">

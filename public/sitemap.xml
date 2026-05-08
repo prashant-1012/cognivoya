@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://cognivoya.vercel.app/</loc><priority>1.0</priority></url>
+  <url><loc>https://cognivoya.vercel.app/discover</loc><priority>0.9</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/chat</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/text</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/image</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/video</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/code</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/audio</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/productivity</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/research</loc><priority>0.8</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/data</loc><priority>0.7</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/design</loc><priority>0.7</priority></url>
+  <url><loc>https://cognivoya.vercel.app/category/marketing</loc><priority>0.7</priority></url>
+  <url><loc>https://cognivoya.vercel.app/bookmarks</loc><priority>0.5</priority></url>
+</urlset>
