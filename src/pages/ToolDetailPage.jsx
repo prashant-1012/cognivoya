@@ -16,6 +16,7 @@ import Button from '@/components/ui/Button'
 import { useGetToolByIdQuery } from '@/services/toolsApi'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { toggleBookmark, selectIsBookmarked } from '@/features/bookmarks/bookmarksSlice'
+import { selectSubmittedTools } from '@/features/submissions/submissionsSlice'
 import { getLogoUrl, formatNumber, formatDate } from '@/utils/formatters'
 
 const pricingVariant = { free: 'free', freemium: 'freemium', paid: 'paid' }
@@ -27,7 +28,13 @@ const ToolDetailPage = () => {
   const isBookmarked = useAppSelector(selectIsBookmarked(id))
   const [copied, setCopied] = useState(false)
 
-  const { data: tool, isLoading, isError } = useGetToolByIdQuery(id)
+  const submittedTools = useAppSelector(selectSubmittedTools)
+  const { data: mockTool, isLoading, isError } = useGetToolByIdQuery(id)
+
+  // Fall back to user-submitted tools when the mock query can't find the id
+  const tool = isError || !mockTool
+    ? submittedTools.find((t) => t.id === id) ?? null
+    : mockTool
 
   const handleBookmark = () => {
     dispatch(toggleBookmark(id))
@@ -43,9 +50,9 @@ const ToolDetailPage = () => {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (isLoading) return <ToolDetailSkeleton />
+  if (isLoading && !tool) return <ToolDetailSkeleton />
 
-  if (isError || !tool) {
+  if (!tool) {
     return (
       <PageWrapper className="py-20 text-center">
         <p className="text-2xl font-bold text-foreground mb-2">Tool not found</p>

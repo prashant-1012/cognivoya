@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { BookmarkX, Compass, Inbox, Trash2 } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -118,18 +118,13 @@ const BookmarksPage = () => {
               }
             >
               {tools.map((tool, i) => (
-                <motion.div key={tool.id} variants={fadeUp} custom={i} initial="hidden" animate="visible" className="relative group">
-                  {viewMode === VIEW_MODE.GRID
-                    ? <ToolCard tool={tool} />
-                    : <ToolCardList tool={tool} />}
-                  {activeTab === 'submissions' && (
-                    <button
-                      onClick={() => dispatch(removeSubmission(tool.id))}
-                      title="Remove submission"
-                      className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-surface/80 border border-border text-muted hover:text-red-400 hover:border-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                <motion.div key={tool.id} variants={fadeUp} custom={i} initial="hidden" animate="visible">
+                  {activeTab === 'submissions' ? (
+                    <SubmittedToolCard tool={tool} viewMode={viewMode} />
+                  ) : (
+                    viewMode === VIEW_MODE.GRID
+                      ? <ToolCard tool={tool} />
+                      : <ToolCardList tool={tool} />
                   )}
                 </motion.div>
               ))}
@@ -161,6 +156,43 @@ const EmptyBookmarks = () => (
     </Link>
   </motion.div>
 )
+
+const SubmittedToolCard = ({ tool, viewMode }) => {
+  const dispatch = useAppDispatch()
+  const [confirming, setConfirming] = useState(false)
+  const timerRef = useRef(null)
+
+  const handleDeleteClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (confirming) {
+      clearTimeout(timerRef.current)
+      dispatch(removeSubmission(tool.id))
+    } else {
+      setConfirming(true)
+      timerRef.current = setTimeout(() => setConfirming(false), 3000)
+    }
+  }
+
+  return (
+    <div className="relative group">
+      {viewMode === VIEW_MODE.GRID ? <ToolCard tool={tool} /> : <ToolCardList tool={tool} />}
+      <button
+        onClick={handleDeleteClick}
+        title={confirming ? 'Click again to confirm' : 'Remove submission'}
+        className={cn(
+          'absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg border text-xs font-medium px-2 py-1 transition-all cursor-pointer z-10',
+          confirming
+            ? 'bg-red-500 border-red-500 text-white opacity-100'
+            : 'bg-surface/90 border-border text-muted hover:text-red-400 hover:border-red-400 opacity-0 group-hover:opacity-100'
+        )}
+      >
+        <Trash2 size={12} />
+        {confirming ? 'Confirm?' : ''}
+      </button>
+    </div>
+  )
+}
 
 const EmptySubmissions = () => (
   <motion.div
