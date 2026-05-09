@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, PlusCircle, Globe, Tag, Layers, DollarSign, AlignLeft, Type } from 'lucide-react'
+import { X, PlusCircle, Pencil, Globe, Tag, Layers, DollarSign, AlignLeft, Type } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAppDispatch } from '@/app/hooks'
-import { submitTool } from './submissionsSlice'
+import { submitTool, updateSubmission } from './submissionsSlice'
 import { CATEGORIES } from '@/utils/constants'
 import Button from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
@@ -17,15 +17,11 @@ const PRICING_OPTIONS = [
   { value: 'paid', label: 'Paid' },
 ]
 
-// exclude 'all' from the category select
 const TOOL_CATEGORIES = CATEGORIES.filter((c) => c.slug !== 'all')
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(60, 'Name is too long'),
-  website: z
-    .string()
-    .url('Enter a valid URL (include https://)')
-    .min(1, 'Website is required'),
+  website: z.string().url('Enter a valid URL (include https://)').min(1, 'Website is required'),
   tagline: z
     .string()
     .min(10, 'Tagline must be at least 10 characters')
@@ -54,18 +50,33 @@ const inputCls = (hasError) =>
     hasError ? 'border-red-400' : 'border-border'
   )
 
-const SubmitToolModal = ({ open, onClose }) => {
+// editTool: if provided, the modal opens in edit mode pre-filled with that tool's data
+const SubmitToolModal = ({ open, onClose, editTool = null }) => {
   const dispatch = useAppDispatch()
   const [submitted, setSubmitted] = useState(false)
+  const isEditMode = Boolean(editTool)
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) })
+  } = useForm({
+    resolver: zodResolver(schema),
+    // pre-fill from editTool when in edit mode
+    values: editTool
+      ? {
+          name: editTool.name ?? '',
+          website: editTool.website ?? '',
+          tagline: editTool.tagline ?? '',
+          category: editTool.category ?? '',
+          pricing: editTool.pricing ?? '',
+          description: editTool.description ?? '',
+          tags: Array.isArray(editTool.tags) ? editTool.tags.join(', ') : (editTool.tags ?? ''),
+        }
+      : undefined,
+  })
 
-  // close on Escape
   useEffect(() => {
     if (!open) return
     const handler = (e) => { if (e.key === 'Escape') handleClose() }
@@ -73,7 +84,6 @@ const SubmitToolModal = ({ open, onClose }) => {
     return () => window.removeEventListener('keydown', handler)
   }, [open])
 
-  // lock body scroll
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -86,22 +96,27 @@ const SubmitToolModal = ({ open, onClose }) => {
   }
 
   const onSubmit = (data) => {
-    // derive logo domain from website URL
     const domain = new URL(data.website).hostname.replace('www.', '')
     const tags = data.tags
       ? data.tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean).slice(0, 4)
       : []
 
-    dispatch(submitTool({ ...data, logo: domain, tags }))
-    setSubmitted(true)
-    toast.success('Tool submitted! Find it in your Submissions tab.')
+    if (isEditMode) {
+      dispatch(updateSubmission({ id: editTool.id, ...data, logo: domain, tags }))
+      toast.success('Tool updated!')
+    } else {
+      dispatch(submitTool({ ...data, logo: domain, tags }))
+      setSubmitted(true)
+      toast.success('Tool submitted! Find it in your Submissions tab.')
+    }
+
+    if (isEditMode) handleClose()
   }
 
   return (
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
@@ -112,7 +127,6 @@ const SubmitToolModal = ({ open, onClose }) => {
             onClick={handleClose}
           />
 
-          {/* Panel */}
           <motion.div
             key="panel"
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -129,9 +143,13 @@ const SubmitToolModal = ({ open, onClose }) => {
               <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-brand-primary/15 flex items-center justify-center">
-                    <PlusCircle size={14} className="text-brand-primary" />
+                    {isEditMode
+                      ? <Pencil size={14} className="text-brand-primary" />
+                      : <PlusCircle size={14} className="text-brand-primary" />}
                   </div>
-                  <h2 className="text-base font-bold text-foreground">Submit a Tool</h2>
+                  <h2 className="text-base font-bold text-foreground">
+                    {isEditMode ? `Edit — ${editTool.name}` : 'Submit a Tool'}
+                  </h2>
                 </div>
                 <button
                   onClick={handleClose}
@@ -147,8 +165,6 @@ const SubmitToolModal = ({ open, onClose }) => {
                   <SuccessState onClose={handleClose} />
                 ) : (
                   <form id="submit-tool-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
-                    {/* Name + Website */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Tool Name" icon={Type} error={errors.name?.message}>
                         <input
@@ -166,7 +182,6 @@ const SubmitToolModal = ({ open, onClose }) => {
                       </Field>
                     </div>
 
-                    {/* Tagline */}
                     <Field label="Tagline" icon={Type} error={errors.tagline?.message}>
                       <input
                         {...register('tagline')}
@@ -175,7 +190,6 @@ const SubmitToolModal = ({ open, onClose }) => {
                       />
                     </Field>
 
-                    {/* Category + Pricing */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Category" icon={Layers} error={errors.category?.message}>
                         <select {...register('category')} className={inputCls(errors.category)}>
@@ -195,7 +209,6 @@ const SubmitToolModal = ({ open, onClose }) => {
                       </Field>
                     </div>
 
-                    {/* Description */}
                     <Field label="Description (optional)" icon={AlignLeft} error={errors.description?.message}>
                       <textarea
                         {...register('description')}
@@ -205,7 +218,6 @@ const SubmitToolModal = ({ open, onClose }) => {
                       />
                     </Field>
 
-                    {/* Tags */}
                     <Field label="Tags (optional)" icon={Tag} error={errors.tags?.message}>
                       <input
                         {...register('tags')}
@@ -228,9 +240,9 @@ const SubmitToolModal = ({ open, onClose }) => {
                       form="submit-tool-form"
                       size="sm"
                       loading={isSubmitting}
-                      icon={<PlusCircle size={13} />}
+                      icon={isEditMode ? <Pencil size={13} /> : <PlusCircle size={13} />}
                     >
-                      Submit Tool
+                      {isEditMode ? 'Save Changes' : 'Submit Tool'}
                     </Button>
                   </div>
                 </div>

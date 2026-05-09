@@ -1,13 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { BookmarkX, Compass, Inbox, Trash2 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { BookmarkX, Compass, Inbox, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import PageWrapper from '@/components/layout/PageWrapper'
 import ToolCard from '@/features/tools/ToolCard'
 import ToolCardList from '@/features/tools/ToolCardList'
 import SortControls from '@/features/tools/SortControls'
 import Button from '@/components/ui/Button'
+import SubmitToolModal from '@/features/submissions/SubmitToolModal'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectBookmarkIds } from '@/features/bookmarks/bookmarksSlice'
 import { selectSubmittedTools, removeSubmission } from '@/features/submissions/submissionsSlice'
@@ -34,7 +35,6 @@ const BookmarksPage = () => {
   const bookmarkIds = useAppSelector(selectBookmarkIds)
   const submittedTools = useAppSelector(selectSubmittedTools)
   const viewMode = useAppSelector(selectViewMode)
-  const dispatch = useAppDispatch()
 
   const bookmarkedTools = mockTools.filter((t) => bookmarkIds.includes(t.id))
 
@@ -136,6 +136,96 @@ const BookmarksPage = () => {
   )
 }
 
+const SubmittedToolCard = ({ tool, viewMode }) => {
+  const dispatch = useAppDispatch()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  // close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
+  const handleDelete = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dispatch(removeSubmission(tool.id))
+    setMenuOpen(false)
+  }
+
+  const handleEdit = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setMenuOpen(false)
+    setEditOpen(true)
+  }
+
+  const handleMenuToggle = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setMenuOpen((prev) => !prev)
+  }
+
+  return (
+    <>
+      <div className="relative">
+        {viewMode === VIEW_MODE.GRID ? <ToolCard tool={tool} /> : <ToolCardList tool={tool} />}
+
+        {/* ⋯ button — overlays the bookmark icon position (top-right) */}
+        <div ref={menuRef} className="absolute top-3 right-3 z-20">
+          <button
+            onClick={handleMenuToggle}
+            aria-label="Tool options"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-surface border border-border text-muted hover:text-foreground hover:border-brand-primary/40 transition-colors cursor-pointer shadow-sm"
+          >
+            <MoreVertical size={14} />
+          </button>
+
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                transition={{ duration: 0.12 }}
+                className="absolute right-0 top-10 w-36 bg-surface border border-border rounded-xl shadow-lg overflow-hidden z-30"
+              >
+                <button
+                  onClick={handleEdit}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-surface-overlay transition-colors cursor-pointer"
+                >
+                  <Pencil size={13} className="text-muted" />
+                  Edit
+                </button>
+                <div className="h-px bg-border mx-2" />
+                <button
+                  onClick={handleDelete}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-400 hover:bg-red-400/10 transition-colors cursor-pointer"
+                >
+                  <Trash2 size={13} />
+                  Delete
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <SubmitToolModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        editTool={tool}
+      />
+    </>
+  )
+}
+
 const EmptyBookmarks = () => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -156,43 +246,6 @@ const EmptyBookmarks = () => (
     </Link>
   </motion.div>
 )
-
-const SubmittedToolCard = ({ tool, viewMode }) => {
-  const dispatch = useAppDispatch()
-  const [confirming, setConfirming] = useState(false)
-  const timerRef = useRef(null)
-
-  const handleDeleteClick = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (confirming) {
-      clearTimeout(timerRef.current)
-      dispatch(removeSubmission(tool.id))
-    } else {
-      setConfirming(true)
-      timerRef.current = setTimeout(() => setConfirming(false), 3000)
-    }
-  }
-
-  return (
-    <div className="relative group">
-      {viewMode === VIEW_MODE.GRID ? <ToolCard tool={tool} /> : <ToolCardList tool={tool} />}
-      <button
-        onClick={handleDeleteClick}
-        title={confirming ? 'Click again to confirm' : 'Remove submission'}
-        className={cn(
-          'absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg border text-xs font-medium px-2 py-1 transition-all cursor-pointer z-10',
-          confirming
-            ? 'bg-red-500 border-red-500 text-white opacity-100'
-            : 'bg-surface/90 border-border text-muted hover:text-red-400 hover:border-red-400 opacity-0 group-hover:opacity-100'
-        )}
-      >
-        <Trash2 size={12} />
-        {confirming ? 'Confirm?' : ''}
-      </button>
-    </div>
-  )
-}
 
 const EmptySubmissions = () => (
   <motion.div

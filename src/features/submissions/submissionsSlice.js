@@ -35,10 +35,18 @@ const submissionsSlice = createSlice({
       state.tools = state.tools.filter((t) => t.id !== action.payload)
       save(state.tools)
     },
+    updateSubmission(state, action) {
+      const { id, ...changes } = action.payload
+      const idx = state.tools.findIndex((t) => t.id === id)
+      if (idx !== -1) {
+        state.tools[idx] = { ...state.tools[idx], ...changes }
+        save(state.tools)
+      }
+    },
   },
 })
 
-export const { submitTool, removeSubmission } = submissionsSlice.actions
+export const { submitTool, removeSubmission, updateSubmission } = submissionsSlice.actions
 export const selectSubmittedTools = (state) => state.submissions.tools
 export const selectSubmissionCount = (state) => state.submissions.tools.length
 export default submissionsSlice.reducer
