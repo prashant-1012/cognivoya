@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
-import { Menu, Search, BookmarkCheck, Compass, Sparkles, LayoutGrid } from 'lucide-react'
+import { Menu, Search, BookmarkCheck, Compass, Sparkles, LayoutGrid, PlusCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
 import ThemeToggle from '@/features/theme/ThemeToggle'
@@ -9,6 +9,7 @@ import { APP_NAME } from '@/utils/constants'
 import { useAppSelector } from '@/app/hooks'
 import { selectBookmarkIds } from '@/features/bookmarks/bookmarksSlice'
 import useKeyboardShortcut from '@/hooks/useKeyboardShortcut'
+import SubmitToolModal from '@/features/submissions/SubmitToolModal'
 
 const navLinks = [
   { to: '/discover', label: 'Discover', icon: Compass },
@@ -18,6 +19,7 @@ const navLinks = [
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [submitOpen, setSubmitOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const bookmarkCount = useAppSelector(selectBookmarkIds).length
   const navigate = useNavigate()
@@ -95,6 +97,16 @@ const Navbar = () => {
                 <Search size={18} />
               </button>
 
+              {/* Submit a Tool */}
+              <button
+                onClick={() => setSubmitOpen(true)}
+                aria-label="Submit a Tool"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-primary/10 text-brand-primary text-sm font-medium hover:bg-brand-primary/20 transition-colors cursor-pointer"
+              >
+                <PlusCircle size={14} />
+                <span className="hidden lg:block">Submit a Tool</span>
+              </button>
+
               <ThemeToggle />
 
               {/* Bookmark icon with count badge */}
@@ -128,7 +140,8 @@ const Navbar = () => {
         </div>
       </header>
 
-      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onSubmitTool={() => setSubmitOpen(true)} />
+      <SubmitToolModal open={submitOpen} onClose={() => setSubmitOpen(false)} />
     </>
   )
 }

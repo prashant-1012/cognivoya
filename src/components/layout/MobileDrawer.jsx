@@ -1,4 +1,4 @@
-import { X, Compass, BookmarkCheck, LayoutGrid, Sparkles } from 'lucide-react'
+import { X, Compass, BookmarkCheck, LayoutGrid, Sparkles, PlusCircle } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/utils/cn'
@@ -12,7 +12,7 @@ const navLinks = [
   { to: '/bookmarks', label: 'Bookmarks', icon: BookmarkCheck },
 ]
 
-const MobileDrawer = ({ open, onClose }) => (
+const MobileDrawer = ({ open, onClose, onSubmitTool }) => (
   <AnimatePresence>
     {open && (
       <>
@@ -65,6 +65,16 @@ const MobileDrawer = ({ open, onClose }) => (
               </NavLink>
             ))}
           </nav>
+
+          <div className="px-3 py-3 border-t border-border">
+            <button
+              onClick={() => { onClose(); onSubmitTool?.() }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-brand-primary bg-brand-primary/10 hover:bg-brand-primary/20 transition-colors cursor-pointer"
+            >
+              <PlusCircle size={18} />
+              Submit a Tool
+            </button>
+          </div>
 
           <div className="px-5 py-4 border-t border-border flex items-center justify-between">
             <span className="text-xs text-subtle">Theme</span>
