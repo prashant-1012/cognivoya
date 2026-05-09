@@ -32,6 +32,12 @@ createRoot(document.getElementById('root')).render(
                   borderRadius: '12px',
                   fontSize: '14px',
                 },
+                success: {
+                  style: { borderBottom: '2px solid #22c55e' },
+                },
+                error: {
+                  style: { borderBottom: '2px solid #ef4444' },
+                },
               }}
             />
           </ThemeProvider>

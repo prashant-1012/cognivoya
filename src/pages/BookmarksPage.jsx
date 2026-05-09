@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { BookmarkX, Compass, Inbox, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import PageWrapper from '@/components/layout/PageWrapper'
@@ -156,6 +157,7 @@ const SubmittedToolCard = ({ tool, viewMode }) => {
     e.preventDefault()
     e.stopPropagation()
     dispatch(removeSubmission(tool.id))
+    toast.success('Submission removed.')
     setMenuOpen(false)
   }
 
@@ -182,7 +184,7 @@ const SubmittedToolCard = ({ tool, viewMode }) => {
           <button
             onClick={handleMenuToggle}
             aria-label="Tool options"
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-surface border border-border text-muted hover:text-foreground hover:border-brand-primary/40 transition-colors cursor-pointer shadow-sm"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-transparent border border-transparent text-subtle hover:text-foreground hover:bg-surface-overlay hover:border-border transition-colors cursor-pointer"
           >
             <MoreVertical size={14} />
           </button>
