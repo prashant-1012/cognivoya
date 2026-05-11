@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  ArrowLeft, Star, ExternalLink, BookmarkCheck, Bookmark,
+  ArrowLeft, ExternalLink, BookmarkCheck, Bookmark,
   Tag, Calendar, Layers, Copy, Check,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -17,6 +17,8 @@ import { useGetToolByIdQuery } from '@/services/toolsApi'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { toggleBookmark, selectIsBookmarked } from '@/features/bookmarks/bookmarksSlice'
 import { selectSubmittedTools } from '@/features/submissions/submissionsSlice'
+import { rateTool, selectUserRating } from '@/features/ratings/ratingsSlice'
+import StarRating, { StarDisplay } from '@/components/ui/StarRating'
 import { getLogoUrl, formatNumber, formatDate } from '@/utils/formatters'
 
 const pricingVariant = { free: 'free', freemium: 'freemium', paid: 'paid' }
@@ -26,6 +28,7 @@ const ToolDetailPage = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const isBookmarked = useAppSelector(selectIsBookmarked(id))
+  const userRating = useAppSelector(selectUserRating(id))
   const [copied, setCopied] = useState(false)
 
   const submittedTools = useAppSelector(selectSubmittedTools)
@@ -41,6 +44,11 @@ const ToolDetailPage = () => {
     toast.success(isBookmarked ? 'Removed from bookmarks' : 'Bookmarked!', {
       icon: isBookmarked ? '🗑️' : '🔖',
     })
+  }
+
+  const handleRate = (rating) => {
+    dispatch(rateTool({ toolId: id, rating }))
+    if (rating) toast.success(`You rated ${tool.name} ${rating} star${rating !== 1 ? 's' : ''}!`)
   }
 
   const handleCopy = () => {
@@ -117,8 +125,8 @@ const ToolDetailPage = () => {
 
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-4 mb-6">
-                <div className="flex items-center gap-1.5">
-                  <Star size={15} className="text-yellow-400 fill-yellow-400" />
+                <div className="flex items-center gap-2">
+                  <StarDisplay value={tool.rating} size={15} />
                   <span className="font-semibold text-foreground text-sm">{tool.rating}</span>
                   <span className="text-xs text-muted">({formatNumber(tool.reviewCount)} reviews)</span>
                 </div>
@@ -175,6 +183,15 @@ const ToolDetailPage = () => {
               <p className="text-sm text-muted leading-relaxed">{tool.description}</p>
             </section>
 
+            {/* Rate this tool */}
+            <section className="rounded-2xl border border-border bg-surface-raised p-6">
+              <h2 className="font-bold text-foreground mb-1">Rate this tool</h2>
+              <p className="text-xs text-muted mb-4">
+                {userRating ? 'Your rating is saved locally.' : 'How would you rate your experience?'}
+              </p>
+              <StarRating value={userRating} onChange={handleRate} />
+            </section>
+
             {/* Tags */}
             {tool.tags?.length > 0 && (
               <section className="rounded-2xl border border-border bg-surface-raised p-6">
@@ -204,7 +221,7 @@ const ToolDetailPage = () => {
                 {[
                   { label: 'Pricing', value: <Badge label={tool.pricing} variant={pricingVariant[tool.pricing]} /> },
                   { label: 'Category', value: <Link to={`/category/${tool.category}`} className="text-sm text-brand-primary capitalize hover:underline">{tool.category}</Link> },
-                  { label: 'Rating', value: <span className="text-sm text-foreground flex items-center gap-1"><Star size={12} className="text-yellow-400 fill-yellow-400" />{tool.rating} / 5</span> },
+                  { label: 'Rating', value: <span className="flex items-center gap-1.5"><StarDisplay value={tool.rating} size={12} /><span className="text-sm text-foreground">{tool.rating}</span></span> },
                   { label: 'Reviews', value: <span className="text-sm text-foreground">{formatNumber(tool.reviewCount)}</span> },
                   { label: 'Added', value: <span className="text-sm text-foreground">{formatDate(tool.addedAt)}</span> },
                 ].map(({ label, value }) => (

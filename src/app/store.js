@@ -6,6 +6,7 @@ import toolsReducer from '@/features/tools/toolsSlice'
 import bookmarksReducer from '@/features/bookmarks/bookmarksSlice'
 import categoriesReducer from '@/features/categories/categoriesSlice'
 import submissionsReducer from '@/features/submissions/submissionsSlice'
+import ratingsReducer from '@/features/ratings/ratingsSlice'
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     bookmarks: bookmarksReducer,
     categories: categoriesReducer,
     submissions: submissionsReducer,
+    ratings: ratingsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),
