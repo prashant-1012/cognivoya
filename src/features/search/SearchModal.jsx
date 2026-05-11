@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, ArrowRight, TrendingUp, Clock } from 'lucide-react'
@@ -23,36 +23,28 @@ const SearchModal = () => {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [recent, setRecent] = useState(getRecent)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const listRef = useRef(null)
+  const itemRefs = useRef([])
   const debounced = useDebounce(input, 250)
   const navigate = useNavigate()
 
   useKeyboardShortcut('k', () => setOpen(true), { ctrl: true })
 
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return
-    const handler = (e) => { if (e.key === 'Escape') handleClose() }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [open])
-
   const handleClose = () => {
     setOpen(false)
     setInput('')
+    setActiveIndex(-1)
   }
 
-  const handleSearch = (term) => {
+  const handleSearch = useCallback((term) => {
     const q = (term ?? input).trim()
     if (!q) return
     saveRecent(q)
     setRecent(getRecent())
     handleClose()
     navigate(`/search?q=${encodeURIComponent(q)}`)
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearch()
-  }
+  }, [input, navigate])
 
   // Live results from mock data
   const results = debounced
@@ -66,9 +58,68 @@ const SearchModal = () => {
         .slice(0, 6)
     : []
 
+  // Flat list of all navigable items in current view
+  const items = results.length > 0
+    ? [
+        ...results.map((tool) => ({
+          key: tool.id,
+          action: () => { handleClose(); navigate(`/tool/${tool.id}`) },
+        })),
+        {
+          key: '__search_all__',
+          action: () => handleSearch(input),
+        },
+      ]
+    : [
+        ...recent.map((term) => ({
+          key: `recent-${term}`,
+          action: () => handleSearch(term),
+        })),
+        ...TRENDING.map((tool) => ({
+          key: `trending-${tool.id}`,
+          action: () => { handleClose(); navigate(`/tool/${tool.id}`) },
+        })),
+      ]
+
+  // Reset active index when visible items change
+  useEffect(() => { setActiveIndex(-1) }, [debounced])
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (activeIndex >= 0 && itemRefs.current[activeIndex]) {
+      itemRefs.current[activeIndex].scrollIntoView({ block: 'nearest' })
+    }
+  }, [activeIndex])
+
+  // Keyboard: Escape + Up/Down/Enter
+  useEffect(() => {
+    if (!open) return
+    const handler = (e) => {
+      if (e.key === 'Escape') { handleClose(); return }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setActiveIndex((i) => (i + 1) % items.length)
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setActiveIndex((i) => (i <= 0 ? items.length - 1 : i - 1))
+      } else if (e.key === 'Enter') {
+        if (activeIndex >= 0 && items[activeIndex]) {
+          e.preventDefault()
+          items[activeIndex].action()
+        } else {
+          handleSearch()
+        }
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [open, activeIndex, items, handleSearch])
+
+  // Helper: assign ref to each navigable row
+  const rowRef = (i) => (el) => { itemRefs.current[i] = el }
+
   return (
     <>
-      {/* Trigger button in Navbar calls setOpen — exposed via context-free shortcut */}
       <AnimatePresence>
         {open && (
           <>
@@ -101,14 +152,13 @@ const SearchModal = () => {
                     autoFocus
                     type="text"
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
+                    onChange={(e) => { setInput(e.target.value); setActiveIndex(-1) }}
                     placeholder="Search AI tools…"
                     className="flex-1 bg-transparent text-foreground text-sm placeholder:text-subtle focus:outline-none"
                   />
                   {input && (
                     <button
-                      onClick={() => setInput('')}
+                      onClick={() => { setInput(''); setActiveIndex(-1) }}
                       className="text-muted hover:text-foreground transition-colors cursor-pointer"
                     >
                       <X size={15} />
@@ -120,17 +170,21 @@ const SearchModal = () => {
                 </div>
 
                 {/* Results or defaults */}
-                <div className="max-h-80 overflow-y-auto py-2">
+                <div ref={listRef} className="max-h-80 overflow-y-auto py-2">
                   {results.length > 0 ? (
                     <>
                       <p className="px-4 py-1.5 text-xs font-semibold text-subtle uppercase tracking-wider">
                         Results
                       </p>
-                      {results.map((tool) => (
+                      {results.map((tool, i) => (
                         <button
                           key={tool.id}
-                          onClick={() => { handleClose(); navigate(`/tool/${tool.id}`) }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors text-left cursor-pointer"
+                          ref={rowRef(i)}
+                          onClick={items[i].action}
+                          className={cn(
+                            'w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left cursor-pointer',
+                            activeIndex === i ? 'bg-surface-overlay' : 'hover:bg-surface-overlay'
+                          )}
                         >
                           <div className="w-8 h-8 rounded-lg overflow-hidden border border-border shrink-0 bg-surface-overlay">
                             <img
@@ -147,10 +201,14 @@ const SearchModal = () => {
                           <ArrowRight size={14} className="text-subtle shrink-0" />
                         </button>
                       ))}
-                      {/* Search all results link */}
+                      {/* Search all results */}
                       <button
+                        ref={rowRef(results.length)}
                         onClick={() => handleSearch(input)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors text-left cursor-pointer border-t border-border mt-1"
+                        className={cn(
+                          'w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left cursor-pointer border-t border-border mt-1',
+                          activeIndex === results.length ? 'bg-surface-overlay' : 'hover:bg-surface-overlay'
+                        )}
                       >
                         <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
                           <Search size={14} className="text-brand-primary" />
@@ -169,11 +227,15 @@ const SearchModal = () => {
                           <p className="px-4 py-1.5 text-xs font-semibold text-subtle uppercase tracking-wider">
                             Recent
                           </p>
-                          {recent.map((term) => (
+                          {recent.map((term, i) => (
                             <button
                               key={term}
+                              ref={rowRef(i)}
                               onClick={() => handleSearch(term)}
-                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-surface-overlay transition-colors text-left cursor-pointer"
+                              className={cn(
+                                'w-full flex items-center gap-3 px-4 py-2 transition-colors text-left cursor-pointer',
+                                activeIndex === i ? 'bg-surface-overlay' : 'hover:bg-surface-overlay'
+                              )}
                             >
                               <Clock size={14} className="text-subtle shrink-0" />
                               <span className="text-sm text-muted">{term}</span>
@@ -186,27 +248,34 @@ const SearchModal = () => {
                       <p className="px-4 py-1.5 text-xs font-semibold text-subtle uppercase tracking-wider">
                         Trending
                       </p>
-                      {TRENDING.map((tool) => (
-                        <button
-                          key={tool.id}
-                          onClick={() => { handleClose(); navigate(`/tool/${tool.id}`) }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors text-left cursor-pointer"
-                        >
-                          <div className="w-8 h-8 rounded-lg overflow-hidden border border-border shrink-0 bg-surface-overlay">
-                            <img
-                              src={getLogoUrl(tool.logo)}
-                              alt={tool.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=6366f1&color=fff&size=32` }}
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground">{tool.name}</p>
-                            <p className="text-xs text-muted truncate">{tool.tagline}</p>
-                          </div>
-                          <TrendingUp size={13} className="text-orange-400 shrink-0" />
-                        </button>
-                      ))}
+                      {TRENDING.map((tool, i) => {
+                        const idx = recent.length + i
+                        return (
+                          <button
+                            key={tool.id}
+                            ref={rowRef(idx)}
+                            onClick={() => { handleClose(); navigate(`/tool/${tool.id}`) }}
+                            className={cn(
+                              'w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left cursor-pointer',
+                              activeIndex === idx ? 'bg-surface-overlay' : 'hover:bg-surface-overlay'
+                            )}
+                          >
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-border shrink-0 bg-surface-overlay">
+                              <img
+                                src={getLogoUrl(tool.logo)}
+                                alt={tool.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=6366f1&color=fff&size=32` }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground">{tool.name}</p>
+                              <p className="text-xs text-muted truncate">{tool.tagline}</p>
+                            </div>
+                            <TrendingUp size={13} className="text-orange-400 shrink-0" />
+                          </button>
+                        )
+                      })}
                     </>
                   )}
                 </div>
@@ -214,8 +283,13 @@ const SearchModal = () => {
                 {/* Footer hints */}
                 <div className="flex items-center gap-4 px-4 py-2.5 border-t border-border bg-surface-raised">
                   <span className="text-xs text-subtle flex items-center gap-1.5">
+                    <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay border border-border text-[10px]">↑</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay border border-border text-[10px]">↓</kbd>
+                    to navigate
+                  </span>
+                  <span className="text-xs text-subtle flex items-center gap-1.5">
                     <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay border border-border text-[10px]">↵</kbd>
-                    to search
+                    to open
                   </span>
                   <span className="text-xs text-subtle flex items-center gap-1.5">
                     <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay border border-border text-[10px]">Esc</kbd>
