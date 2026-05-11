@@ -191,7 +191,7 @@ const SearchModal = () => {
                               src={getLogoUrl(tool.logo)}
                               alt={tool.name}
                               className="w-full h-full object-cover"
-                              onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=6366f1&color=fff&size=32` }}
+                              onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=0ea5e9&color=fff&size=32` }}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -265,7 +265,7 @@ const SearchModal = () => {
                                 src={getLogoUrl(tool.logo)}
                                 alt={tool.name}
                                 className="w-full h-full object-cover"
-                                onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=6366f1&color=fff&size=32` }}
+                                onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=0ea5e9&color=fff&size=32` }}
                               />
                             </div>
                             <div className="flex-1 min-w-0">

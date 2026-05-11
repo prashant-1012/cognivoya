@@ -14,25 +14,33 @@ import { useCountUp } from '@/hooks/useCountUp'
 // value: numeric target, suffix: display suffix, decimals: decimal places to show
 // color: Tailwind arbitrary-value accent applied to icon, value text, and bottom border
 const stats = [
-  { icon: Zap,        label: 'AI Tools',        value: 2400, suffix: '+',  decimals: 0, color: { text: 'text-amber-400',  bg: 'bg-amber-400/10',  border: 'border-b-amber-400'  } },
-  { icon: Users,      label: 'Monthly Visitors', value: 180,  suffix: 'K+', decimals: 0, color: { text: 'text-sky-400',    bg: 'bg-sky-400/10',    border: 'border-b-sky-400'    } },
-  { icon: Star,       label: 'Avg Rating',       value: 4.8,  suffix: '',   decimals: 1, color: { text: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-b-emerald-400' } },
-  { icon: TrendingUp, label: 'New This Week',    value: 38,   suffix: '',   decimals: 0, color: { text: 'text-violet-400', bg: 'bg-violet-400/10', border: 'border-b-violet-400' } },
+  { icon: Zap,        label: 'AI Tools',        value: 2400, suffix: '+',  decimals: 0, color: { text: 'text-amber-400',   bg: 'bg-amber-400/10',   border: 'border-b-amber-400'   }, glow: 'rgba(251,191,36,0.25)'  },
+  { icon: Users,      label: 'Monthly Visitors', value: 180,  suffix: 'K+', decimals: 0, color: { text: 'text-sky-400',     bg: 'bg-sky-400/10',     border: 'border-b-sky-400'     }, glow: 'rgba(56,189,248,0.25)'  },
+  { icon: Star,       label: 'Avg Rating',       value: 4.8,  suffix: '',   decimals: 1, color: { text: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-b-emerald-400' }, glow: 'rgba(52,211,153,0.25)'  },
+  { icon: TrendingUp, label: 'New This Week',    value: 38,   suffix: '',   decimals: 0, color: { text: 'text-violet-400',  bg: 'bg-violet-400/10',  border: 'border-b-violet-400'  }, glow: 'rgba(167,139,250,0.25)' },
 ]
 
-function StatCard({ icon: Icon, label, value, suffix, decimals, color, started }) {
+function StatCard({ icon: Icon, label, value, suffix, decimals, color, glow, started }) {
   const count = useCountUp(value, 1800, started)
   const display = decimals > 0 ? count.toFixed(decimals) : count.toLocaleString()
   return (
-    <div className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border border-b-2 ${color.border}`}>
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color.bg}`}>
+    <motion.div
+      whileHover={{ y: -4, boxShadow: `0 8px 24px 0 ${glow}` }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border border-b-2 ${color.border} cursor-default`}
+    >
+      <motion.div
+        whileHover={{ scale: 1.15 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+        className={`w-9 h-9 rounded-xl flex items-center justify-center ${color.bg}`}
+      >
         <Icon size={18} className={color.text} />
-      </div>
+      </motion.div>
       <span className={`text-2xl font-black tabular-nums ${color.text}`}>
         {display}{suffix}
       </span>
       <span className="text-xs text-muted">{label}</span>
-    </div>
+    </motion.div>
   )
 }
 

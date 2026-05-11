@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Cognivoya — AI Tools Discovery',
         short_name: 'Cognivoya',
         description: 'Discover the best AI tools for every use case',
-        theme_color: '#6366f1',
+        theme_color: '#0ea5e9',
         background_color: '#0f0f13',
         display: 'standalone',
         start_url: '/',
