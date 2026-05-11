@@ -19,7 +19,7 @@
   --color-subtle: #94a3b8;
 
   /* Fonts */
-  --font-display: 'Inter', system-ui, sans-serif;
+  --font-display: 'DM Sans', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 
   /* Shadows */
@@ -64,6 +64,11 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* Display font on all headings */
+h1, h2 {
+  font-family: var(--font-display);
+}
 
 /* Focus ring */
 :focus-visible {
