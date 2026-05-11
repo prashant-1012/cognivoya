@@ -12,22 +12,23 @@ import { CATEGORIES } from '@/utils/constants'
 import { useCountUp } from '@/hooks/useCountUp'
 
 // value: numeric target, suffix: display suffix, decimals: decimal places to show
+// color: Tailwind arbitrary-value accent applied to icon, value text, and bottom border
 const stats = [
-  { icon: Zap,        label: 'AI Tools',          value: 2400,  suffix: '+',  decimals: 0 },
-  { icon: Users,      label: 'Monthly Visitors',   value: 180,   suffix: 'K+', decimals: 0 },
-  { icon: Star,       label: 'Avg Rating',         value: 4.8,   suffix: '',   decimals: 1 },
-  { icon: TrendingUp, label: 'New This Week',       value: 38,    suffix: '',   decimals: 0 },
+  { icon: Zap,        label: 'AI Tools',        value: 2400, suffix: '+',  decimals: 0, color: { text: 'text-amber-400',  bg: 'bg-amber-400/10',  border: 'border-b-amber-400'  } },
+  { icon: Users,      label: 'Monthly Visitors', value: 180,  suffix: 'K+', decimals: 0, color: { text: 'text-sky-400',    bg: 'bg-sky-400/10',    border: 'border-b-sky-400'    } },
+  { icon: Star,       label: 'Avg Rating',       value: 4.8,  suffix: '',   decimals: 1, color: { text: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-b-emerald-400' } },
+  { icon: TrendingUp, label: 'New This Week',    value: 38,   suffix: '',   decimals: 0, color: { text: 'text-violet-400', bg: 'bg-violet-400/10', border: 'border-b-violet-400' } },
 ]
 
-function StatCard({ icon: Icon, label, value, suffix, decimals, started }) {
+function StatCard({ icon: Icon, label, value, suffix, decimals, color, started }) {
   const count = useCountUp(value, 1800, started)
   const display = decimals > 0 ? count.toFixed(decimals) : count.toLocaleString()
   return (
-    <div className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border">
-      <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center">
-        <Icon size={18} className="text-brand-primary" />
+    <div className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border border-b-2 ${color.border}`}>
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color.bg}`}>
+        <Icon size={18} className={color.text} />
       </div>
-      <span className="text-2xl font-black text-foreground tabular-nums">
+      <span className={`text-2xl font-black tabular-nums ${color.text}`}>
         {display}{suffix}
       </span>
       <span className="text-xs text-muted">{label}</span>
