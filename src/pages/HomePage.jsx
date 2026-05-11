@@ -1,5 +1,6 @@
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { Sparkles, ArrowRight, Zap, Users, Star, TrendingUp } from 'lucide-react'
 import PageWrapper from '@/components/layout/PageWrapper'
@@ -8,13 +9,31 @@ import ToolCard from '@/features/tools/ToolCard'
 import ToolSkeleton from '@/features/tools/ToolSkeleton'
 import { useGetToolsQuery } from '@/services/toolsApi'
 import { CATEGORIES } from '@/utils/constants'
+import { useCountUp } from '@/hooks/useCountUp'
 
+// value: numeric target, suffix: display suffix, decimals: decimal places to show
 const stats = [
-  { icon: Zap, label: 'AI Tools', value: '2,400+' },
-  { icon: Users, label: 'Monthly Visitors', value: '180K+' },
-  { icon: Star, label: 'Avg Rating', value: '4.8' },
-  { icon: TrendingUp, label: 'New This Week', value: '38' },
+  { icon: Zap,        label: 'AI Tools',          value: 2400,  suffix: '+',  decimals: 0 },
+  { icon: Users,      label: 'Monthly Visitors',   value: 180,   suffix: 'K+', decimals: 0 },
+  { icon: Star,       label: 'Avg Rating',         value: 4.8,   suffix: '',   decimals: 1 },
+  { icon: TrendingUp, label: 'New This Week',       value: 38,    suffix: '',   decimals: 0 },
 ]
+
+function StatCard({ icon: Icon, label, value, suffix, decimals, started }) {
+  const count = useCountUp(value, 1800, started)
+  const display = decimals > 0 ? count.toFixed(decimals) : count.toLocaleString()
+  return (
+    <div className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border">
+      <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center">
+        <Icon size={18} className="text-brand-primary" />
+      </div>
+      <span className="text-2xl font-black text-foreground tabular-nums">
+        {display}{suffix}
+      </span>
+      <span className="text-xs text-muted">{label}</span>
+    </div>
+  )
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -28,6 +47,8 @@ const fadeUp = {
 const HomePage = () => {
   const { data, isLoading } = useGetToolsQuery({ sort: 'popular', page: 1 })
   const featuredTools = data?.tools?.slice(0, 8) ?? []
+  const statsRef = useRef(null)
+  const statsInView = useInView(statsRef, { once: true, margin: '-60px' })
 
   return (
   <>
@@ -107,23 +128,15 @@ const HomePage = () => {
 
         {/* Stats bar */}
         <motion.div
+          ref={statsRef}
           variants={fadeUp}
           custom={4}
           initial="hidden"
           animate="visible"
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          {stats.map(({ icon: Icon, label, value }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border"
-            >
-              <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center">
-                <Icon size={18} className="text-brand-primary" />
-              </div>
-              <span className="text-2xl font-black text-foreground">{value}</span>
-              <span className="text-xs text-muted">{label}</span>
-            </div>
+          {stats.map((stat) => (
+            <StatCard key={stat.label} {...stat} started={statsInView} />
           ))}
         </motion.div>
       </PageWrapper>
