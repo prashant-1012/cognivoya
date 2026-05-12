@@ -52,7 +52,7 @@ const ToolCardList = ({ tool }) => {
           <span className="text-xs text-muted">{tool.rating}</span>
         </div>
         <Badge label={tool.pricing} variant={tool.pricing} />
-        <Badge label={tool.category} variant="default" />
+        <Badge label={tool.category} variant="category" />
       </div>
 
       <button

@@ -84,7 +84,7 @@ const ToolCard = ({ tool }) => {
             <ToolBadge tool={tool} />
             <Badge label={tool.pricing} variant={pricingVariant[tool.pricing]} />
           </div>
-          <Badge label={tool.category} variant="default" className="shrink-0" />
+          <Badge label={tool.category} variant="category" className="shrink-0" />
         </div>
       </Link>
     </motion.div>

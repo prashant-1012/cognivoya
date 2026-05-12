@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { setActiveCategory, selectActiveCategory } from './categoriesSlice'
 import { resetPagination } from '@/features/tools/toolsSlice'
 import { useGetCategoriesQuery } from '@/services/categoriesApi'
+import { CATEGORY_COLORS } from '@/utils/constants'
 
 const CategoryFilter = () => {
   const dispatch = useAppDispatch()
@@ -29,8 +30,8 @@ const CategoryFilter = () => {
           className={cn(
             'shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap',
             active === slug
-              ? 'bg-brand-primary text-white shadow-sm'
-              : 'bg-surface-overlay text-muted hover:text-foreground hover:bg-border'
+              ? (CATEGORY_COLORS[slug]?.active ?? 'bg-brand-primary text-white') + ' shadow-sm'
+              : `bg-surface-overlay text-muted hover:text-foreground hover:bg-border`
           )}
         >
           {label}

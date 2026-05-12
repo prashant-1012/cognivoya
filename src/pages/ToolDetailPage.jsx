@@ -20,6 +20,8 @@ import { selectSubmittedTools } from '@/features/submissions/submissionsSlice'
 import { rateTool, selectUserRating } from '@/features/ratings/ratingsSlice'
 import StarRating, { StarDisplay } from '@/components/ui/StarRating'
 import { getLogoUrl, formatNumber, formatDate } from '@/utils/formatters'
+import { CATEGORY_COLORS } from '@/utils/constants'
+import { cn } from '@/utils/cn'
 
 const pricingVariant = { free: 'free', freemium: 'freemium', paid: 'paid' }
 
@@ -131,11 +133,11 @@ const ToolDetailPage = () => {
                   <span className="text-xs text-muted">({formatNumber(tool.reviewCount)} reviews)</span>
                 </div>
                 <Badge label={tool.pricing} variant={pricingVariant[tool.pricing]} />
-                <div className="flex items-center gap-1.5 text-xs text-muted">
-                  <Layers size={13} />
+                <div className="flex items-center gap-1.5 text-xs">
+                  <Layers size={13} className={CATEGORY_COLORS[tool.category]?.text ?? 'text-muted'} />
                   <Link
                     to={`/category/${tool.category}`}
-                    className="hover:text-brand-primary transition-colors capitalize"
+                    className={cn('capitalize transition-colors hover:opacity-80', CATEGORY_COLORS[tool.category]?.text ?? 'text-muted')}
                   >
                     {tool.category}
                   </Link>

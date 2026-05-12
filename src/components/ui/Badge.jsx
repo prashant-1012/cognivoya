@@ -1,4 +1,5 @@
 import { cn } from '@/utils/cn'
+import { CATEGORY_COLORS } from '@/utils/constants'
 
 const variants = {
   default: 'bg-surface-overlay text-muted',
@@ -12,16 +13,23 @@ const variants = {
   freemium: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
 }
 
-const Badge = ({ label, variant = 'default', className }) => (
-  <span
-    className={cn(
-      'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium',
-      variants[variant],
-      className
-    )}
-  >
-    {label}
-  </span>
-)
+const Badge = ({ label, variant = 'default', className }) => {
+  const categoryColor = CATEGORY_COLORS[label?.toLowerCase()]
+  const categoryClass = variant === 'category' && categoryColor
+    ? `${categoryColor.bg} ${categoryColor.text}`
+    : variants[variant] ?? variants.default
+
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium',
+        categoryClass,
+        className
+      )}
+    >
+      {label}
+    </span>
+  )
+}
 
 export default Badge

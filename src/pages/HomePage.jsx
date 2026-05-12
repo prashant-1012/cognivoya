@@ -8,7 +8,8 @@ import Button from '@/components/ui/Button'
 import ToolCard from '@/features/tools/ToolCard'
 import ToolSkeleton from '@/features/tools/ToolSkeleton'
 import { useGetToolsQuery } from '@/services/toolsApi'
-import { CATEGORIES } from '@/utils/constants'
+import { CATEGORIES, CATEGORY_COLORS } from '@/utils/constants'
+import { cn } from '@/utils/cn'
 import { useCountUp } from '@/hooks/useCountUp'
 
 // value: numeric target, suffix: display suffix, decimals: decimal places to show
@@ -223,10 +224,16 @@ const HomePage = () => {
             >
               <Link
                 to={`/category/${slug}`}
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-border bg-surface-raised hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all group"
+                style={{ '--cat-color': 'var(--tw-ring-color)' }}
+                className={cn(
+                  'flex flex-col items-center gap-2 p-4 rounded-2xl border bg-surface-raised transition-all duration-200 group hover:scale-[1.03] hover:bg-surface-overlay',
+                  CATEGORY_COLORS[slug]?.border ?? 'border-border'
+                )}
               >
-                <span className="text-2xl">{categoryEmoji[slug]}</span>
-                <span className="text-xs font-medium text-muted group-hover:text-foreground transition-colors text-center">
+                <span className={cn('text-xl group-hover:scale-110 transition-transform duration-200', CATEGORY_COLORS[slug]?.text)}>
+                  {categoryEmoji[slug]}
+                </span>
+                <span className={cn('text-xs font-medium transition-colors text-center text-muted group-hover:text-foreground')}>
                   {label}
                 </span>
               </Link>
