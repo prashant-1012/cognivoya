@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
@@ -11,6 +11,7 @@ import { useGetToolsQuery } from '@/services/toolsApi'
 import { CATEGORIES, CATEGORY_COLORS } from '@/utils/constants'
 import { cn } from '@/utils/cn'
 import { useCountUp } from '@/hooks/useCountUp'
+import { getLogoUrl } from '@/utils/formatters'
 
 // value: numeric target, suffix: display suffix, decimals: decimal places to show
 // color: Tailwind arbitrary-value accent applied to icon, value text, and bottom border
@@ -54,6 +55,99 @@ const fadeUp = {
   }),
 }
 
+// Hardcoded showcase tools — always visible instantly, no API dependency
+const showcaseTools = [
+  { id: 'chatgpt',       name: 'ChatGPT',        tagline: 'The conversational AI that changed everything',  logo: 'openai.com',      category: 'chat',         rating: 4.9, isTrending: true  },
+  { id: 'midjourney',    name: 'Midjourney',      tagline: 'Generate stunning AI art from text prompts',    logo: 'midjourney.com',  category: 'image',        rating: 4.8, isStaffPick: true },
+  { id: 'copilot',       name: 'GitHub Copilot',  tagline: 'AI pair programmer inside your editor',         logo: 'github.com',      category: 'code',         rating: 4.7, isNew: true       },
+  { id: 'elevenlabs',    name: 'ElevenLabs',       tagline: 'Hyper-realistic AI voice generation',           logo: 'elevenlabs.io',   category: 'audio',        rating: 4.8, isTrending: true  },
+  { id: 'notion-ai',     name: 'Notion AI',        tagline: 'Write, summarise, and brainstorm in Notion',   logo: 'notion.so',       category: 'productivity', rating: 4.6, isStaffPick: true },
+]
+
+// Each card: resting tilt + stacked Y, then fans out with amplified tilt on hover
+// stackY offset by +110 so the fan-up stays inside the hero section
+const cardConfig = [
+  { stackY: 110, fanY:  20, restRotate: '-6deg',  hoverRotate: '-14deg', z: 10 },
+  { stackY: 138, fanY:  65, restRotate: '-3deg',  hoverRotate:  '-7deg', z: 20 },
+  { stackY: 166, fanY: 110, restRotate:  '0deg',  hoverRotate:   '0deg', z: 30 },
+  { stackY: 194, fanY: 155, restRotate:  '3deg',  hoverRotate:   '7deg', z: 20 },
+  { stackY: 222, fanY: 200, restRotate:  '6deg',  hoverRotate:  '14deg', z: 10 },
+]
+
+function HeroMockup() {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      className="relative w-full select-none cursor-default"
+      style={{ height: '420px' }}
+      aria-hidden
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {showcaseTools.map((tool, i) => {
+        const catColor = CATEGORY_COLORS[tool.category]
+        const cfg = cardConfig[i]
+        return (
+          <motion.div
+            key={tool.id}
+            initial={{ opacity: 0, x: 60, rotate: cfg.restRotate }}
+            animate={{
+              opacity: 1,
+              x: 0,
+              y: hovered ? cfg.fanY : cfg.stackY,
+              rotate: hovered ? cfg.hoverRotate : cfg.restRotate,
+            }}
+            transition={{
+              opacity: { duration: 0.5, delay: i * 0.08 },
+              x:       { duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
+              y:       { type: 'spring', stiffness: 280, damping: 24, delay: i * 0.025 },
+              rotate:  { type: 'spring', stiffness: 280, damping: 24, delay: i * 0.025 },
+            }}
+            style={{ top: 0, zIndex: cfg.z }}
+            className="absolute left-0 right-0 mx-auto w-full max-w-sm"
+          >
+            <div className={cn(
+              'rounded-2xl border bg-surface-raised dark:bg-white/[0.05] dark:backdrop-blur-sm p-4 shadow-soft flex items-center gap-3 transition-shadow duration-200',
+              catColor?.border ?? 'border-border',
+            )}>
+              <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-border bg-surface-overlay">
+                <img
+                  src={getLogoUrl(tool.logo)}
+                  alt={tool.name}
+                  width={44} height={44}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tool.name)}&background=0ea5e9&color=fff&size=44`
+                  }}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span className="text-sm font-semibold text-foreground truncate">{tool.name}</span>
+                  {tool.isTrending  && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-orange-500/10 text-orange-500 font-medium">Trending</span>}
+                  {tool.isStaffPick && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-yellow-500/10 text-yellow-500 font-medium">Staff Pick</span>}
+                  {tool.isNew       && <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 font-medium">New</span>}
+                </div>
+                <p className="text-xs text-muted truncate">{tool.tagline}</p>
+              </div>
+              <div className="shrink-0 flex flex-col items-end gap-1.5">
+                <span className={cn('text-[10px] px-1.5 py-0.5 rounded-md font-medium', catColor?.bg, catColor?.text)}>
+                  {tool.category}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Star size={10} className="text-yellow-400 fill-yellow-400" />
+                  <span className="text-xs text-muted">{tool.rating}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )
+      })}
+    </div>
+  )
+}
+
 const HomePage = () => {
   const { data, isLoading } = useGetToolsQuery({ sort: 'popular', page: 1 })
   const featuredTools = data?.tools?.slice(0, 8) ?? []
@@ -71,7 +165,7 @@ const HomePage = () => {
   </Helmet>
   <div>
     {/* Hero */}
-    <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
+    <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28" style={{ isolation: 'isolate' }}>
       {/* Mesh gradient background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
         {/* Top-left — cyan */}
@@ -85,64 +179,79 @@ const HomePage = () => {
       </div>
 
       <PageWrapper className="relative">
-        <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
-          {/* Pill label */}
-          <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/5 text-brand-primary text-sm font-medium">
-              <Sparkles size={14} />
-              The AI Tools Discovery Platform
-            </span>
-          </motion.div>
+        {/* Two-column hero layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-          {/* Headline */}
-          <motion.h1
-            variants={fadeUp}
-            custom={1}
-            initial="hidden"
-            animate="visible"
-            className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight leading-[1.1]"
-          >
-            Find the perfect{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
-              AI tool
-            </span>{' '}
-            for any job
-          </motion.h1>
+          {/* Left — text content */}
+          <div className="flex flex-col gap-6">
+            {/* Pill label */}
+            <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/5 text-brand-primary text-sm font-medium w-fit">
+                <Sparkles size={14} />
+                The AI Tools Discovery Platform
+              </span>
+            </motion.div>
 
-          {/* Subtext */}
-          <motion.p
-            variants={fadeUp}
-            custom={2}
-            initial="hidden"
-            animate="visible"
-            className="text-base sm:text-lg text-muted max-w-xl leading-relaxed"
-          >
-            Explore 2,400+ curated AI tools across writing, image, video, code, and more.
-            Discover what's trending, bookmark your favorites, and stay ahead.
-          </motion.p>
+            {/* Headline */}
+            <motion.h1
+              variants={fadeUp}
+              custom={1}
+              initial="hidden"
+              animate="visible"
+              className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground tracking-tight leading-[1.1]"
+            >
+              Find the perfect{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
+                AI tool
+              </span>{' '}
+              for any job
+            </motion.h1>
 
-          {/* CTAs */}
+            {/* Subtext */}
+            <motion.p
+              variants={fadeUp}
+              custom={2}
+              initial="hidden"
+              animate="visible"
+              className="text-base sm:text-lg text-muted max-w-lg leading-relaxed"
+            >
+              Explore 2,400+ curated AI tools across writing, image, video, code, and more.
+              Discover what's trending, bookmark your favorites, and stay ahead.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              variants={fadeUp}
+              custom={3}
+              initial="hidden"
+              animate="visible"
+              className="flex flex-wrap items-center gap-3"
+            >
+              <Link to="/discover">
+                <Button size="lg" icon={<ArrowRight size={18} />}>
+                  Explore Tools
+                </Button>
+              </Link>
+              <Link to="/category/all">
+                <Button size="lg" variant="outline">
+                  Browse Categories
+                </Button>
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Right — floating tool card mockup */}
           <motion.div
-            variants={fadeUp}
-            custom={3}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-wrap items-center justify-center gap-3"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="hidden lg:block"
           >
-            <Link to="/discover">
-              <Button size="lg" icon={<ArrowRight size={18} />}>
-                Explore Tools
-              </Button>
-            </Link>
-            <Link to="/category/all">
-              <Button size="lg" variant="outline">
-                Browse Categories
-              </Button>
-            </Link>
+            <HeroMockup />
           </motion.div>
         </div>
 
-        {/* Stats bar */}
+        {/* Stats bar — full width below hero columns */}
         <motion.div
           ref={statsRef}
           variants={fadeUp}
