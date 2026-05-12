@@ -34,16 +34,16 @@ const Navbar = () => {
 
   return (
     <>
-      <header
-        className={cn(
-          'sticky top-0 z-30 w-full transition-all duration-200',
-          scrolled
-            ? 'bg-surface/80 backdrop-blur-xl border-b border-border shadow-card'
-            : 'bg-surface border-b border-transparent'
-        )}
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
+      <header className="fixed top-0 left-0 right-0 z-30 flex justify-center px-4 pt-3 pointer-events-none">
+        <div
+          className={cn(
+            'pointer-events-auto w-full max-w-5xl rounded-2xl border transition-all duration-300',
+            scrolled
+              ? 'bg-surface/80 backdrop-blur-xl border-border shadow-soft'
+              : 'bg-surface/60 backdrop-blur-md border-border/50'
+          )}
+        >
+          <div className="flex items-center justify-between h-14 px-4 gap-4">
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -139,6 +139,8 @@ const Navbar = () => {
           </div>
         </div>
       </header>
+      {/* Spacer so page content starts below the floating navbar */}
+      <div className="h-20" aria-hidden />
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onSubmitTool={() => setSubmitOpen(true)} />
       <SubmitToolModal open={submitOpen} onClose={() => setSubmitOpen(false)} />

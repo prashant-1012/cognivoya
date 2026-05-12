@@ -32,7 +32,7 @@ const ToolCard = ({ tool }) => {
     >
       <Link
         to={`/tool/${tool.id}`}
-        className="flex flex-col h-full rounded-2xl border border-border bg-surface-raised hover:border-brand-primary/40 hover:shadow-soft transition-all duration-200 overflow-hidden"
+        className="flex flex-col h-full rounded-2xl border border-border bg-surface-raised dark:bg-white/[0.03] dark:border-white/10 dark:backdrop-blur-sm hover:border-brand-primary/40 dark:hover:border-brand-primary/30 hover:shadow-soft transition-all duration-200 overflow-hidden"
       >
         {/* Card header */}
         <div className="flex items-start justify-between p-5 pb-3 gap-3">

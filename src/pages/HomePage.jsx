@@ -27,7 +27,7 @@ function StatCard({ icon: Icon, label, value, suffix, decimals, color, glow, sta
     <motion.div
       whileHover={{ y: -4, boxShadow: `0 8px 24px 0 ${glow}` }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised border border-border border-b-2 ${color.border} cursor-default`}
+      className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-surface-raised dark:bg-white/[0.03] dark:backdrop-blur-sm border border-border border-b-2 ${color.border} cursor-default`}
     >
       <motion.div
         whileHover={{ scale: 1.15 }}
@@ -71,10 +71,16 @@ const HomePage = () => {
   <div>
     {/* Hero */}
     <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
-      {/* Background glow blobs */}
+      {/* Mesh gradient background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-brand-primary/10 blur-3xl" />
-        <div className="absolute top-10 right-0 w-80 h-80 rounded-full bg-brand-secondary/10 blur-3xl" />
+        {/* Top-left — cyan */}
+        <div className="mesh-orb-1 absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-brand-primary/15 blur-[120px]" />
+        {/* Top-right — violet */}
+        <div className="mesh-orb-2 absolute -top-20 -right-40 w-[600px] h-[600px] rounded-full bg-brand-secondary/12 blur-[100px]" />
+        {/* Bottom-left — violet */}
+        <div className="mesh-orb-3 absolute bottom-0 -left-20 w-[500px] h-[500px] rounded-full bg-brand-secondary/10 blur-[90px]" />
+        {/* Bottom-right — cyan */}
+        <div className="mesh-orb-4 absolute -bottom-20 right-0 w-[450px] h-[450px] rounded-full bg-brand-primary/10 blur-[80px]" />
       </div>
 
       <PageWrapper className="relative">

@@ -22,7 +22,7 @@ const ToolCardList = ({ tool }) => {
   return (
     <Link
       to={`/tool/${tool.id}`}
-      className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-border bg-surface-raised hover:border-brand-primary/40 hover:shadow-card transition-all duration-200 group"
+      className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-border bg-surface-raised dark:bg-white/[0.03] dark:border-white/10 dark:backdrop-blur-sm hover:border-brand-primary/40 dark:hover:border-brand-primary/30 hover:shadow-card transition-all duration-200 group"
     >
       <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 bg-surface-overlay border border-border">
         <img

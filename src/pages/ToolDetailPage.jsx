@@ -95,7 +95,7 @@ const ToolDetailPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-3xl border border-border bg-surface-raised p-6 md:p-10 mb-8"
+          className="rounded-3xl border border-border bg-surface-raised dark:bg-white/[0.03] dark:border-white/10 dark:backdrop-blur-sm p-6 md:p-10 mb-8"
         >
           <div className="flex flex-col md:flex-row gap-6 md:gap-10">
             {/* Logo */}
