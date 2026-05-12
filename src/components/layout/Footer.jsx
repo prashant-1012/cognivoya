@@ -3,7 +3,8 @@ import { Sparkles, ExternalLink } from 'lucide-react'
 import { APP_NAME, APP_TAGLINE } from '@/utils/constants'
 
 const Footer = () => (
-  <footer className="border-t border-border bg-surface mt-24">
+  <footer className="bg-surface mt-24">
+    <div className="h-px bg-gradient-to-r from-transparent via-brand-primary/30 to-transparent" />
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
 

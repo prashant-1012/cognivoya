@@ -268,7 +268,8 @@ const HomePage = () => {
     </section>
 
     {/* Featured tools section */}
-    <section className="py-16 border-t border-border">
+    <div className="h-px bg-gradient-to-r from-transparent via-brand-primary/30 to-transparent" />
+    <section className="py-16">
       <PageWrapper>
         <motion.div
           variants={fadeUp}
@@ -299,7 +300,8 @@ const HomePage = () => {
     </section>
 
     {/* Categories section */}
-    <section className="py-16 border-t border-border">
+    <div className="h-px bg-gradient-to-r from-transparent via-brand-primary/30 to-transparent" />
+    <section className="py-16">
       <PageWrapper>
         <motion.div
           variants={fadeUp}
